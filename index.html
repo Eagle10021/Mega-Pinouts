@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mega Kit Pinouts</title>
+<meta name="description" content="Interactive pinouts for the Arduino Mega 2560 Rev3 and every part in the ELEGOO Mega 2560 Most Complete Starter Kit, with resistor advice and sources.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="bar">
+  <div class="wrap bar-inner">
+    <a class="brand" href="#board"><span class="brand-mark" aria-hidden="true"></span>Mega Kit Pinouts</a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#board" data-view="board">Board</a>
+      <a href="#parts" data-view="parts">Parts</a>
+      <a href="#resistors" data-view="resistors">Resistors</a>
+      <a href="#sources" data-view="sources">Sources</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- BOARD -->
+  <section id="view-board" class="view" aria-labelledby="board-h">
+    <div class="intro">
+      <div>
+        <p class="eyebrow">Arduino Mega 2560 Rev3 · ELEGOO Most Complete Starter Kit</p>
+        <h1 id="board-h">The board</h1>
+        <p class="lede">Click a pin to see what it does and which kit parts use it. Use the buttons to light up pins by function.</p>
+      </div>
+      <form id="pin-search" class="pin-search" role="search">
+        <label for="pin-q" class="sr">Find a pin</label>
+        <input id="pin-q" type="search" placeholder="Find a pin: 20, A3, SDA, CIPO…" autocomplete="off">
+        <button class="btn" type="submit">Find</button>
+      </form>
+    </div>
+    <div class="filters" role="group" aria-label="Highlight pins by function">
+      <button class="chip-filter" data-f="all">All pins</button>
+      <button class="chip-filter f-pwm" data-f="pwm">PWM (15)</button>
+      <button class="chip-filter f-interrupt" data-f="interrupt">Interrupts (6)</button>
+      <button class="chip-filter f-serial" data-f="serial">Serial</button>
+      <button class="chip-filter f-i2c" data-f="i2c">I2C</button>
+      <button class="chip-filter f-spi" data-f="spi">SPI</button>
+      <button class="chip-filter f-analog" data-f="analog">Analog (16)</button>
+      <button class="chip-filter f-power" data-f="power">Power</button>
+      <button class="chip-filter f-kit" data-f="kit">Used by kit parts</button>
+    </div>
+    <div id="hl-banner" class="hl-banner" hidden><span id="hl-text"></span><span class="hl-actions"><a id="hl-back" class="btn ghost" href="#parts">Back to the part</a><button id="hl-clear" class="btn ghost" type="button">Show all pins</button></span></div>
+    <div class="board-grid">
+      <div class="board-col">
+        <div class="board-scroll"><svg id="board" viewBox="-30 -10 1090 580" role="group" aria-label="Arduino Mega 2560 Rev3 pin headers"></svg></div>
+        <div id="legend" class="legend" aria-live="polite"></div>
+      </div>
+      <aside id="pin-panel" class="panel" aria-live="polite"></aside>
+    </div>
+    <details class="panel rev" id="rev">
+      <summary><span class="eyebrow">Board revision</span><strong>Mega 2560 Rev3, current datasheet</strong></summary>
+      <div id="rev-body" class="rev-body"></div>
+    </details>
+  </section>
+
+  <!-- PARTS -->
+  <section id="view-parts" class="view" aria-labelledby="parts-h" hidden>
+    <div id="parts-list">
+      <div class="intro">
+        <div>
+          <p class="eyebrow">29 parts · colour-coded by type</p>
+          <h1 id="parts-h">Kit parts</h1>
+          <p class="lede">Pick a part for its pinout, the resistors it needs, and the wiring from its kit lesson.</p>
+        </div>
+        <label class="sr" for="comp-search">Filter parts</label>
+        <input id="comp-search" type="search" placeholder="Filter: HC-SR04, servo, lesson 21…" autocomplete="off">
+      </div>
+      <div id="cat-chips" class="filters" role="group" aria-label="Filter by type"></div>
+      <div id="comp-grid" class="comp-grid"></div>
+    </div>
+    <article id="comp-detail" class="detail" hidden></article>
+  </section>
+
+  <!-- RESISTORS -->
+  <section id="view-resistors" class="view" aria-labelledby="res-h" hidden>
+    <div class="intro">
+      <div>
+        <p class="eyebrow">Which resistor, and where</p>
+        <h1 id="res-h">Resistors</h1>
+        <p class="lede">Every Mega pin can supply 20 mA at most. A resistor keeps LEDs and displays under that, and holds inputs at a steady level.</p>
+      </div>
+    </div>
+    <div class="res-grid">
+      <div class="panel">
+        <h2>Quick rules</h2>
+        <table class="rules">
+          <thead><tr><th>What you're connecting</th><th>Resistor</th><th>Where</th></tr></thead>
+          <tbody>
+            <tr><td>An LED (any colour)</td><td><span class="rv">220Ω</span></td><td>In series with the LED, on either leg</td></tr>
+            <tr><td>RGB LED</td><td><span class="rv">3 × 220Ω</span></td><td>One on each colour leg</td></tr>
+            <tr><td>7-segment display</td><td><span class="rv">220Ω</span> each</td><td>On the segment pins, or the digit pins (see the display's page)</td></tr>
+            <tr><td>Button or switch input</td><td>None</td><td>Use <code>INPUT_PULLUP</code>, or a <span class="rv">10kΩ</span> pull-down to GND</td></tr>
+            <tr><td>Thermistor or photocell</td><td><span class="rv">10kΩ</span> or <span class="rv">1kΩ</span></td><td>From the analog pin to GND, forming a divider</td></tr>
+            <tr><td>Transistor (PN2222, S8050)</td><td><span class="rv">1kΩ</span></td><td>Between the Mega pin and the base</td></tr>
+            <tr><td>Sensor modules</td><td>Usually none</td><td>They have their own resistors on board</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel calc" id="calc">
+        <h2>LED resistor calculator</h2>
+        <div class="calc-form">
+          <label for="c-led">LED colour</label>
+          <select id="c-led">
+            <option value="2.0">Red (2.0V)</option><option value="2.1">Yellow (2.1V)</option><option value="3.0">Green (3.0V)</option>
+            <option value="3.0">Blue (3.0V)</option><option value="3.0">White (3.0V)</option>
+          </select>
+          <label for="c-v">Supply</label>
+          <select id="c-v"><option value="5">5V pin</option><option value="3.3">3.3V</option></select>
+          <label for="c-ma">Current</label>
+          <div class="range"><input id="c-ma" type="range" min="2" max="20" step="1" value="10"><output id="c-ma-out" for="c-ma">10 mA</output></div>
+        </div>
+        <div id="calc-out" class="calc-out" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Resistors in the kit</h2>
+      <p class="muted small">1% metal film with 5 colour bands. Read them with the brown tolerance band on the right.</p>
+      <div id="kit-res" class="kit-res"></div>
+    </div>
+    <div class="panel">
+      <h2>Every part, and the resistors it needs</h2>
+      <div class="table-scroll"><table class="all-res" id="all-res"></table></div>
+    </div>
+  </section>
+
+  <!-- SOURCES -->
+  <section id="view-sources" class="view" aria-labelledby="sources-h" hidden>
+    <div class="intro"><div>
+      <p class="eyebrow">Where the facts come from</p>
+      <h1 id="sources-h">Sources</h1>
+      <p class="lede">The board facts come from Arduino's current Mega 2560 Rev3 documents (datasheet rev 4, 20 Oct 2026) and the ATmega2560 datasheet. The kit wiring comes from the pin numbers in ELEGOO's own lesson sketches (download V1.0.2023.05.05). Links marked <span class="badge">on this server</span> are copies of the datasheets in ELEGOO's kit download.</p>
+    </div></div>
+    <div id="sources-list" class="sources"></div>
+  </section>
+</main>
+<footer class="wrap foot"><p class="muted small">Hosted on Phrolova. Your 4-digit display wiring is on the <a href="#part-5461as">4-digit 7-segment display</a> page.</p></footer>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
