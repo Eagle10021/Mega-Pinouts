@@ -163,8 +163,10 @@
     L.innerHTML = '<span class="muted">Seen from the top, USB on the left. The SDA/SCL pair by AREF is the same as pins 20 and 21. The ICSP header carries the same SPI signals as pins 50–52.</span>';
   }
 
-  function selectPin(p) {
+  const pinSlug = p => encodeURIComponent(p.label || refName(p.ref));
+  function selectPin(p, link = true) {
     state.pin = p;
+    if (link && !$('#view-board').hidden) history.replaceState(null, '', '#pin-' + pinSlug(p));
     const info = p.info;
     const used = usage[p.ref] || [];
     const aka = p.label && p.label !== refName(p.ref) && !/^A\d+$/.test(p.label) ? ` <span class="aka">(${esc(p.label)} label)</span>` : '';
@@ -175,8 +177,16 @@
       ${info.desc ? `<p>${esc(info.desc)}</p>` : ''}
       ${info.lines.length ? `<dl>${info.lines.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>` : ''}
       ${info.n !== undefined ? `<p class="limit">Max 20 mA per pin, 5V logic.</p>` : ''}
+      <div class="pin-actions"><button class="btn ghost small" type="button" id="copy-pin">Copy link to this pin</button></div>
       <h4>Used by kit parts</h4>
       ${used.length ? `<ul class="uses">${used.map(u => `<li style="--cc:${CAT_COLORS[u.c.cat]}"><a href="#part-${u.c.id}">${esc(u.c.name)}</a><span>${esc(u.pin)} · ${esc(u.set)}</span></li>`).join('')}</ul>` : '<p class="muted">No kit lesson uses this pin, so it is free for your own wiring.</p>'}`;
+    $('#copy-pin').addEventListener('click', e => {
+      const url = location.origin + location.pathname + '#pin-' + pinSlug(p);
+      const done = t => { e.target.textContent = t; setTimeout(() => { e.target.textContent = 'Copy link to this pin'; }, 1800); };
+      history.replaceState(null, '', '#pin-' + pinSlug(p));
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(url).then(() => done('Link copied'), () => done('Link is in the address bar'));
+      else done('Link is in the address bar');
+    });
     paint();
   }
 
@@ -493,7 +503,7 @@
     </div>`;
   }
 
-  const linkItem = l => `<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>${l.local ? ' <span class="badge">on this server</span>' : ` <span class="host">${esc(new URL(l.url).hostname.replace(/^www\./, ''))}</span>`}</li>`;
+  const linkItem = l => `<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>${l.local ? ' <span class="badge">PDF copy</span>' : ` <span class="host">${esc(new URL(l.url).hostname.replace(/^www\./, ''))}</span>`}</li>`;
 
   function showComp(id) {
     const i = COMPONENTS.findIndex(x => x.id === id);
@@ -604,10 +614,74 @@
   function route() {
     const h = location.hash.slice(1);
     const m = /^part-(.+)$/.exec(h);
+    const pm = /^pin-(.+)$/.exec(h);
     if (m) { showView('parts'); showComp(m[1]); }
+    else if (pm) { showView('board'); const p = findPin(decodeURIComponent(pm[1])); if (p) selectPin(p, false); else paint(); return; }
     else if (['parts', 'resistors', 'sources'].includes(h)) showView(h);
     else { showView('board'); paint(); }
     window.scrollTo(0, 0);
+  }
+
+  // ---------- theme switch, shortcuts, back to top ----------
+  const THEMES = ['auto', 'light', 'dark'];
+  const THEME_NAME = { auto: 'Auto', light: 'Light', dark: 'Dark' };
+  function setTheme(t) {
+    if (t === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t;
+    try { if (t === 'auto') localStorage.removeItem('mkp-theme'); else localStorage.setItem('mkp-theme', t); } catch (e) {}
+    $('#theme-label').textContent = THEME_NAME[t];
+    $('#theme-btn').setAttribute('aria-label', 'Colour theme: ' + (t === 'auto' ? 'follow system' : t) + '. Click to change.');
+  }
+  const curTheme = () => document.documentElement.dataset.theme || 'auto';
+  const cycleTheme = () => setTheme(THEMES[(THEMES.indexOf(curTheme()) + 1) % 3]);
+
+  function initExtras() {
+    setTheme(curTheme());
+    $('#theme-btn').addEventListener('click', cycleTheme);
+
+    const dlg = $('#keys-dlg');
+    const openKeys = () => { if (!dlg.open) dlg.showModal(); };
+    $$('[data-keys]').forEach(b => b.addEventListener('click', openKeys));
+
+    const top = $('#to-top');
+    const onScroll = () => top.classList.toggle('show', window.scrollY > 700);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));
+
+    // Enter in the parts filter opens the first match.
+    $('#comp-search').addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      const first = $('#comp-grid .card');
+      if (first) { e.preventDefault(); location.hash = first.getAttribute('href'); }
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.ctrlKey || e.metaKey || e.altKey || dlg.open) return;
+      const t = e.target;
+      const typing = t.matches && t.matches('input, select, textarea, [contenteditable]');
+      if (typing) {
+        if (e.key === 'Escape' && t.type === 'search') { t.value = ''; t.dispatchEvent(new Event('input')); t.blur(); }
+        return;
+      }
+      const onPart = !$('#comp-detail').hidden && !$('#view-parts').hidden;
+      if (e.key === '/') {
+        e.preventDefault();
+        if (!$('#view-parts').hidden && !onPart) { $('#comp-search').focus(); return; }
+        if ($('#view-board').hidden) location.hash = '#board';
+        setTimeout(() => $('#pin-q').focus(), 0);
+      } else if (/^[1-4]$/.test(e.key)) {
+        location.hash = '#' + ['board', 'parts', 'resistors', 'sources'][+e.key - 1];
+      } else if (e.key === '?') {
+        openKeys();
+      } else if (e.key === 't' || e.key === 'T') {
+        cycleTheme();
+      } else if (onPart && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+        const a = $$('#comp-detail .pager a')[e.key === 'ArrowLeft' ? 0 : 1];
+        if (a) location.hash = a.getAttribute('href');
+      } else if (e.key === 'Escape') {
+        if (onPart) location.hash = '#parts';
+        else if (!$('#view-board').hidden) { state.highlight = null; state.filter = 'all'; paint(); }
+      }
+    });
   }
 
   function init() {
@@ -627,7 +701,8 @@
     renderGrid();
     renderResistors();
     renderSources();
-    selectPin(findPin('20'));
+    selectPin(findPin('20'), false);
+    initExtras();
     window.addEventListener('hashchange', route);
     route();
   }

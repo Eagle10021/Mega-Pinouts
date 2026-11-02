@@ -4,22 +4,31 @@
   --bg: #eef1f4; --surface: #ffffff; --surface-2: #f6f8fa; --fg: #18212b; --muted: #5a6776; --line: #d3dae2;
   --accent: #b05a1e; --accent-ink: #ffffff;
   --pcb: #0f4f8c; --pcb-edge: #0a3a68; --silk: #f2f6fa; --pad: #d9ab4f; --pad-on: #ffd36b; --header: #1b1f24;
-  --c-pwm: #c2410c; --c-interrupt: #7c3aed; --c-serial: #0f766e; --c-i2c: #2563eb; --c-spi: #be185d; --c-analog: #15803d; --c-power: #b91c1c; --c-kit: #a16207;
-  --cat-display: #7c3aed; --cat-sensor: #0e7490; --cat-input: #2563eb; --cat-motor: #a16207; --cat-chip: #475569; --cat-basic: #15803d; --cat-power: #b91c1c;
+  --c-pwm: #c2410c; --c-interrupt: #0e7490; --c-serial: #8b4513; --c-i2c: #2563eb; --c-spi: #4d7c0f; --c-analog: #15803d; --c-power: #b91c1c; --c-kit: #475569;
+  --cat-display: #c2410c; --cat-sensor: #0e7490; --cat-input: #2563eb; --cat-motor: #a16207; --cat-chip: #475569; --cat-basic: #15803d; --cat-power: #b91c1c;
   --display: "Archivo", "Arial Narrow", system-ui, sans-serif;
   --body: "IBM Plex Sans", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
   color-scheme: light;
 }
+/* Theme: follows the system unless the header switch sets data-theme="light" or "dark" on <html>. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme=light]) {
     --bg: #11161c; --surface: #19212a; --surface-2: #1f2832; --fg: #e3e9ef; --muted: #95a3b2; --line: #2b3642;
     --accent: #f08a4b; --accent-ink: #1a0f06;
     --pcb: #0d467d; --pcb-edge: #072a4c; --header: #050607;
-    --c-pwm: #fb923c; --c-interrupt: #a78bfa; --c-serial: #2dd4bf; --c-i2c: #60a5fa; --c-spi: #f472b6; --c-analog: #4ade80; --c-power: #f87171; --c-kit: #facc15;
-    --cat-display: #a78bfa; --cat-sensor: #22d3ee; --cat-input: #60a5fa; --cat-motor: #fbbf24; --cat-chip: #94a3b8; --cat-basic: #4ade80; --cat-power: #f87171;
+    --c-pwm: #fb923c; --c-interrupt: #22d3ee; --c-serial: #d6a26b; --c-i2c: #60a5fa; --c-spi: #a3e635; --c-analog: #4ade80; --c-power: #f87171; --c-kit: #94a3b8;
+    --cat-display: #fb923c; --cat-sensor: #22d3ee; --cat-input: #60a5fa; --cat-motor: #fbbf24; --cat-chip: #94a3b8; --cat-basic: #4ade80; --cat-power: #f87171;
     color-scheme: dark;
   }
+}
+:root[data-theme=dark] {
+  --bg: #11161c; --surface: #19212a; --surface-2: #1f2832; --fg: #e3e9ef; --muted: #95a3b2; --line: #2b3642;
+  --accent: #f08a4b; --accent-ink: #1a0f06;
+  --pcb: #0d467d; --pcb-edge: #072a4c; --header: #050607;
+  --c-pwm: #fb923c; --c-interrupt: #22d3ee; --c-serial: #d6a26b; --c-i2c: #60a5fa; --c-spi: #a3e635; --c-analog: #4ade80; --c-power: #f87171; --c-kit: #94a3b8;
+  --cat-display: #fb923c; --cat-sensor: #22d3ee; --cat-input: #60a5fa; --cat-motor: #fbbf24; --cat-chip: #94a3b8; --cat-basic: #4ade80; --cat-power: #f87171;
+  color-scheme: dark;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -49,6 +58,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .tabs a { color: var(--silk); text-decoration: none; font: 600 0.92rem var(--body); padding: 8px 14px; border-radius: 8px; white-space: nowrap; }
 .tabs a:hover { background: color-mix(in srgb, var(--silk) 14%, transparent); }
 .tabs a[aria-current=page] { background: var(--silk); color: var(--pcb); }
+.bar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.theme-btn { display: inline-flex; align-items: center; gap: 7px; font: 600 0.82rem var(--mono); color: var(--silk); background: transparent; border: 1.5px solid color-mix(in srgb, var(--silk) 40%, transparent); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+.theme-btn:hover { background: color-mix(in srgb, var(--silk) 14%, transparent); }
+.theme-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 
 main { padding-block: 28px 24px; }
 .view { display: grid; gap: 18px; min-width: 0; }
@@ -215,7 +228,28 @@ th { font: 600 0.72rem var(--mono); text-transform: uppercase; letter-spacing: 0
 .host { font: 0.75rem var(--mono); color: var(--muted); }
 .badge { font: 600 0.7rem var(--mono); padding: 1px 7px; border-radius: 999px; background: color-mix(in srgb, var(--pad) 30%, transparent); color: var(--fg); white-space: nowrap; }
 .sources { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: start; }
-.foot { padding-block: 8px 40px; }
+.foot { padding-block: 22px 44px; margin-top: 12px; border-top: 1px solid var(--line); display: grid; gap: 10px; }
+.foot-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
+.foot-links { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.linkbtn { font: inherit; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+kbd { font: 600 0.8em var(--mono); padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; background: var(--surface-2); color: var(--fg); }
+.pin-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn.small { padding: 6px 12px; font-size: 0.82rem; }
+.to-top { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px)); z-index: 30; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 14px rgb(0 0 0 / .18); opacity: 0; pointer-events: none; transform: translateY(8px); transition: opacity .2s, transform .2s; }
+.to-top.show { opacity: 1; pointer-events: auto; transform: none; }
+.keys-dlg { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--fg); padding: 20px 22px; width: min(420px, calc(100vw - 32px)); }
+.keys-dlg::backdrop { background: rgb(0 0 0 / .45); }
+.keys-dlg h2 { margin-bottom: 12px; }
+.keys-dlg table td:first-child { white-space: nowrap; }
+.keys-dlg form { margin-top: 14px; text-align: right; }
+@media print {
+  :root, :root[data-theme] { --bg: #fff; --surface: #fff; --surface-2: #f4f4f4; --fg: #000; --muted: #444; --line: #bbb; color-scheme: light; }
+  .bar, .foot, .to-top, .crumbs, .filters, .pin-search, #comp-search, .hl-banner, .btn, .as-table summary { display: none !important; }
+  main { padding-top: 0; }
+  .panel, .res-box, .detail-head { break-inside: avoid; }
+  .as-table > :not(summary) { display: block !important; }
+  a { color: inherit; text-decoration: none; }
+}
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 
 /* wiring diagrams (one column per connection: Mega box, wire, part pin) */

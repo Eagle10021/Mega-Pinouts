@@ -41,7 +41,7 @@ const COMPONENTS = [
     pins: [[1,'E','Segment E'],[2,'D','Segment D'],[3,'DP','Decimal point'],[4,'C','Segment C'],[5,'G','Segment G'],[6,'DIG4','Digit 4 cathode'],
            [7,'B','Segment B'],[8,'DIG3','Digit 3 cathode'],[9,'DIG2','Digit 2 cathode'],[10,'F','Segment F'],[11,'A','Segment A'],[12,'DIG1','Digit 1 cathode']],
     wiring: [
-      { title: 'Your build: direct, 220Ω on the digit pins', rows: [
+      { title: 'Direct wiring: 220Ω on the digit pins', rows: [
         ['A (11)','D22',''],['B (7)','D23',''],['C (4)','D24',''],['D (2)','D25',''],['E (1)','D26',''],['F (10)','D27',''],['G (5)','D28',''],['DP (3)','D29',''],
         ['DIG1 (12)','D30','220Ω in series'],['DIG2 (9)','D31','220Ω in series'],['DIG3 (8)','D32','220Ω in series'],['DIG4 (6)','D33','220Ω in series'] ] },
       { title: 'Kit lesson 28: segments through a 74HC595', rows: [
@@ -78,7 +78,7 @@ const COMPONENTS = [
            [11,'D4','Data 4'],[12,'D5','Data 5'],[13,'D6','Data 6'],[14,'D7','Data 7'],[15,'A','Backlight +'],[16,'K','Backlight −']],
     wiring: [{ title: 'Kit lesson 22', rows: [
       ['VSS','GND',''],['VDD','5V',''],['V0','10k pot wiper','pot ends to 5V and GND'],['RS','D7',''],['RW','GND',''],['E','D8',''],
-      ['D4','D9',''],['D5','D10',''],['D6','D11',''],['D7','D12',''],['A','5V','220Ω in series (backlight, per your lab sheet)'],['K','GND',''] ] }],
+      ['D4','D9',''],['D5','D10',''],['D6','D11',''],['D7','D12',''],['A','5V','220Ω in series (backlight; skip it if the module has its own)'],['K','GND',''] ] }],
     notes: ['Code: LiquidCrystal lcd(7, 8, 9, 10, 11, 12);', 'Blank screen or solid blocks? Turn the contrast pot.', 'Lessons 23 (thermometer) reuse this wiring.'],
     links: [kit('lesson-22-lcd1602a-lcd-display.pdf'), ext('HD44780 controller datasheet', 'https://www.sparkfun.com/datasheets/LCD/HD44780.pdf'), ext('LiquidCrystal library', 'https://docs.arduino.cc/libraries/liquidcrystal/')],
   },
@@ -374,7 +374,7 @@ const BOARD = {
   facts: [
     ['Microcontroller', 'ATmega2560, 16 MHz, 5V logic'],
     ['USB chip', 'ATmega16U2 (USB-B). Some clone boards use a CH340 chip instead; Linux has the driver built in.'],
-    ['Your board', 'Checked 26 Oct 2026: USB ID 2341:0042 "Arduino Mega 2560 R3", so it has the ATmega16U2 USB chip (not a CH340 clone). It shows up as /dev/ttyACM0.'],
+    ['Genuine or clone?', 'Plug it in and run lsusb (Linux) or check Device Manager (Windows). USB ID 2341:0042 "Arduino Mega 2560 R3" means the ATmega16U2 chip, shown as /dev/ttyACM0 or a COM port. 1a86:7523 means a CH340 clone, shown as /dev/ttyUSB0.'],
     ['PWM pins', '15: pins 2–13 and 44–46'],
     ['Max current', '20 mA per I/O pin, 50 mA from the 3.3V pin'],
     ['VIN / DC jack', '7–12V recommended'],
@@ -406,7 +406,7 @@ const KIT_RESISTORS = [
 // Where each part needs resistors: [where, value, why]. An empty list means none are needed (the reason goes in RES_NONE).
 const RESISTORS = {
   '5461as': [
-    ['Each digit pin (12, 9, 8, 6), between the display and the Mega', '4 × 220Ω', 'Your build. Each digit draws at most about 14 mA, under the 20 mA pin limit. Digits with more segments lit look dimmer.'],
+    ['Each digit pin (12, 9, 8, 6), between the display and the Mega', '4 × 220Ω', 'The direct wiring above. Each digit draws at most about 14 mA, under the 20 mA pin limit. Digits with more segments lit look dimmer.'],
     ['Even brightness, option 1: each segment pin (A–G, DP)', '8 × 2kΩ', 'About 1.5 mA per segment, so a full "8." is 12 mA through the digit pin. Dimmer, but safe without transistors.'],
     ['Even brightness, option 2: each segment pin, plus a PN2222 per digit', '8 × 220Ω on the segments, 4 × 1kΩ to the transistor bases', 'Bright and even. The transistors carry the digit current, so a digit pin HIGH turns that digit on.'],
   ],
